@@ -1,0 +1,25 @@
+import type { Ctx } from '../engine/context'
+
+export interface RiskSeed {
+  id: string; component: string; title: string; probability: number; impact: number; mitigation: string; verification: string
+  appliesTo?: (c: Ctx) => boolean
+}
+
+/** Seed risk register. Probability/impact are team-level judgements on a 1–5 scale and are editable per configuration. */
+export const RISKS: RiskSeed[] = [
+  { id: 'K01', component: 'UWB', title: 'Multi-anchor ranging firmware takes longer than planned', probability: 4, impact: 4, mitigation: 'Prototype 4-anchor ranging first; prefer a family with vendor scheduling firmware (MaUWB) if time is short.', verification: 'Module test demo (Dec 7–11): 4 anchors → raw ranges at the host', appliesTo: (c) => !!c.anchors },
+  { id: 'K02', component: 'UWB', title: 'Vendor accuracy claims do not translate into <20 cm robot localization (NLOS, geometry, calibration)', probability: 4, impact: 5, mitigation: 'Antenna-delay calibration, anchor placement study, outlier rejection and IMU/camera fusion.', verification: 'Ground-truth experiment in the arena', appliesTo: (c) => !!c.anchors },
+  { id: 'K03', component: 'UWB', title: 'Anchor failure or bias is not detected quickly', probability: 3, impact: 5, mitigation: 'Residual-based fault detection; solve with any 3 of 4 anchors; fault-injection test set.', verification: 'Fault injection: unplug / bias one anchor' },
+  { id: 'K04', component: 'Processor', title: 'Wi-Fi link to the GPU server drops or lags', probability: 3, impact: 4, mitigation: 'Safe-stop on link loss; local fallback behaviour; dual-band processor; measure latency.', verification: 'Latency + packet-loss test' },
+  { id: 'K05', component: 'Processor', title: 'Software video encoding or small RAM limits the stream', probability: 3, impact: 3, mitigation: 'Prefer hardware-encode hosts or lower bitrate; measure CPU load.', verification: 'Streaming benchmark', appliesTo: (c) => c.processor?.proc?.hwEncode !== 'hw-h264' || (c.processor?.proc?.ramMB ?? 9999) < 1024 },
+  { id: 'K06', component: 'Camera', title: 'Selected camera is not supported by the selected processor', probability: 2, impact: 5, mitigation: 'Confirm driver support on the actual board before ordering; keep a USB camera as fallback.', verification: 'Bring-up test with the real pair', appliesTo: (c) => !!c.bySlot.camera.length },
+  { id: 'K07', component: 'Camera', title: 'Target not detected within 2 s / not reacquired within 3 s', probability: 3, impact: 4, mitigation: 'Wide FOV, tuned detector on GPU server, tracker with re-detection.', verification: 'Detection latency + reacquisition test' },
+  { id: 'K08', component: 'Platform', title: 'Payload or space is insufficient for the final electronics', probability: 3, impact: 3, mitigation: 'Weigh components early; choose lighter battery; mount layout mock-up.', verification: 'Mass budget + mechanical fit check', appliesTo: (c) => !!c.platform },
+  { id: 'K09', component: 'Platform', title: 'No wheel odometry (or heavy slip) weakens dead reckoning during UWB dropouts', probability: 3, impact: 3, mitigation: 'IMU + visual odometry; add encoders if mechanically possible.', verification: 'Dropout scenario test', appliesTo: (c) => !!c.platform && !c.has('encoders') },
+  { id: 'K10', component: 'Power', title: 'Li-ion battery safety (charging, short circuits, shipping)', probability: 2, impact: 5, mitigation: 'Protected cells, fuse, dedicated charger, never charge unattended.', verification: 'Power-system review checklist', appliesTo: (c) => c.has('battery-cells') || !!c.platform?.plat?.cells },
+  { id: 'K11', component: 'Power', title: 'Runtime shorter than a full test session', probability: 3, impact: 3, mitigation: 'Measure current draw; carry spare cells; reduce computer load.', verification: 'Runtime measurement under load' },
+  { id: 'K12', component: 'Safety', title: 'No hardware emergency stop', probability: 3, impact: 5, mitigation: 'Latching power switch independent of software; MCU watchdog.', verification: 'Fault test: stop within a defined time', appliesTo: (c) => !c.bySlot.safety.some((s) => s.product.provides.includes('estop')) },
+  { id: 'K13', component: 'Budget', title: 'Preliminary prices drift above the $350 budget (e.g. RAM-driven price increases)', probability: 4, impact: 3, mitigation: 'Re-verify prices before ordering; use the observed-price view; keep a reserve.', verification: 'Procurement price check' },
+  { id: 'K14', component: 'Scope', title: 'An unapproved sensor is used (additional camera, optical flow, ranging)', probability: 2, impact: 5, mitigation: 'Check items against the restrictions; get supervisor approval in writing.', verification: 'BOM audit before ordering' },
+  { id: 'K15', component: 'Regulatory', title: 'UWB operation may need regulatory clearance in the test location', probability: 2, impact: 3, mitigation: 'Check national UWB rules; use low-power compliant modules; ask the supervisor.', verification: 'Regulatory check recorded' },
+]

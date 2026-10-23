@@ -1,0 +1,83 @@
+import type { Product, CameraAttrs } from '../types'
+import { CHECK_DATE, product as P } from './helpers'
+
+const AD = 'https://www.adafruit.com/images/480x360'
+
+const cam = (c: CameraAttrs): CameraAttrs => c
+
+export const cameras: Product[] = [
+  P({
+    id: 'rpi-cam3', slots: ['camera'], name: 'Camera Module 3 (Standard)', brand: 'Raspberry Pi', price: 25, priceNote: 'Preliminary $25. Adafruit listed $29.25 on 2026-10-23.',
+    observed: { price: 29.25, seller: 'Adafruit (authorised distributor)', date: CHECK_DATE, url: 'https://www.adafruit.com/product/5657' },
+    url: 'https://www.raspberrypi.com/products/camera-module-3/', image: `${AD}/5657-04.jpg`, seller: 'Raspberry Pi approved resellers',
+    summary: '12 MP Sony IMX708 with autofocus and HDR — the default Pi camera, normal field of view.',
+    pros: ['Autofocus and HDR', 'First-class libcamera support', 'Low cost'], cons: ['Rolling shutter distorts fast motion', 'Narrower FOV than the Wide variant', 'Cable length/connector depends on host (15 vs 22 pin)'],
+    specs: [['Sensor', 'Sony IMX708, 12 MP'], ['Shutter', 'Rolling'], ['Autofocus', 'Yes (PDAF)'], ['FOV', '≈66° horizontal / 75° diagonal (recalled — verify)'], ['Interface', 'CSI-2 (Raspberry Pi)']],
+    includes: ['Camera board', 'Flat cable (verify type)'], excludes: ['22-pin adapter cable for Pi 5 / Zero 2 W (check listing)'], provides: ['camera'],
+    sources: [{ label: 'Adafruit listing (fetched 2026-10-23)', kind: 'distributor', url: 'https://www.adafruit.com/product/5657' }], confidence: 'distributor', specStatus: 'partial',
+    cam: cam({ iface: 'csi-pi', sensor: 'Sony IMX708', resolution: '4608×2592 (12 MP); 1080p50 / 720p100 modes', fps: 'up to 50 fps @1080p', fovDeg: 75, shutter: 'rolling', color: 'rgb', autofocus: true, lowLight: 'Good for its class (HDR, large pixels)', vslam: 3, vslamNote: 'Rolling shutter + autofocus breathing complicate VSLAM calibration.' }),
+    ratings: { integration: 5, docs: 5, expandability: 4 }, ratingBasis: 'Best supported camera on Raspberry Pi hosts.',
+    raptorStatus: 'requires-validation', raptorNote: 'Detection latency and tracking quality must be measured end-to-end through the GPU server.', tags: ['csi', 'rgb', 'autofocus'], purchasePriority: 'before-integration',
+  }),
+  P({
+    id: 'rpi-cam3-wide', slots: ['camera'], name: 'Camera Module 3 Wide', brand: 'Raspberry Pi', price: 35, priceNote: 'Preliminary $35. Adafruit listed $38.50 on 2026-10-23.',
+    observed: { price: 38.5, seller: 'Adafruit (authorised distributor)', date: CHECK_DATE, url: 'https://www.adafruit.com/product/5658' },
+    url: 'https://www.raspberrypi.com/products/camera-module-3/', image: `${AD}/5658-04.jpg`, seller: 'Raspberry Pi approved resellers',
+    summary: 'IMX708 with a 120° diagonal lens — the team’s current preferred camera candidate for keeping targets in view.',
+    pros: ['Wide field of view keeps the moving target in frame', 'Autofocus and HDR', 'Same driver stack as the standard module'], cons: ['Wide lens distortion needs calibration', 'Rolling shutter', 'Slightly higher cost'],
+    specs: [['Sensor', 'Sony IMX708, 12 MP'], ['FOV', '120° diagonal (Adafruit listing title)'], ['Shutter', 'Rolling'], ['Autofocus', 'Yes']],
+    includes: ['Camera board', 'Flat cable (verify type)'], excludes: ['22-pin adapter cable (check listing)'], provides: ['camera'],
+    sources: [{ label: 'Adafruit listing (fetched 2026-10-23)', kind: 'distributor', url: 'https://www.adafruit.com/product/5658' }], confidence: 'distributor', specStatus: 'partial',
+    cam: cam({ iface: 'csi-pi', sensor: 'Sony IMX708 (wide lens)', resolution: '4608×2592 (12 MP)', fps: 'up to 50 fps @1080p', fovDeg: 120, shutter: 'rolling', color: 'rgb', autofocus: true, lowLight: 'Good for its class', vslam: 4, vslamNote: 'Wide FOV helps feature tracking; calibrate distortion; rolling shutter still a limit.' }),
+    ratings: { integration: 5, docs: 5, expandability: 4 }, ratingBasis: 'Same ecosystem as Camera Module 3.',
+    raptorStatus: 'requires-validation', raptorNote: 'Preferred candidate. Validate detection latency (<2 s) and reacquisition (<3 s) experimentally.', tags: ['csi', 'rgb', 'autofocus', 'wide'], purchasePriority: 'before-integration',
+  }),
+  P({
+    id: 'arducam-ov9281', slots: ['camera'], name: 'OV9281 Mono Global Shutter (MIPI)', brand: 'Arducam', price: 25.99, seller: 'Arducam',
+    priceNote: 'Preliminary price from team notes. Several SKUs/revisions exist (lens, IR filter, Rev.A/Rev.B) — pick the exact SKU before purchase.',
+    url: 'https://www.arducam.com/blog/product/arducam-ov9281-1mp-mono-global-shutter-mipi-camera-with-130degree-850nm-only-m12-mount-for-raspberry-pi/',
+    summary: '1 MP monochrome global-shutter sensor — attractive for visual odometry, weak as a human-readable detection camera.',
+    pros: ['Global shutter: no motion skew', 'High frame rate (vendor spec tables disagree: 120–143 fps)', 'Ideal for future Visual SLAM'], cons: ['1280×800 mono only — poor for colour-based target identification', 'Only Rev.B uses the official V4L2 driver; Rev.A needs Arducam drivers', 'Driver exposes RAW/manual exposure only; no HW JPEG/H.264 through the driver'],
+    specs: [['Sensor', 'OV9281, 1 MP mono'], ['Resolution', '1280×800'], ['Shutter', 'Global'], ['FOV', 'Lens-dependent (130° M12 SKU exists)']],
+    includes: ['Camera board'], excludes: ['Lens (SKU-dependent)', 'Cable adapter'], provides: ['camera'],
+    sources: [{ label: 'Arducam product page via web search (2026-10-23)', kind: 'manufacturer', url: 'https://www.arducam.com/blog/product/arducam-ov9281-1mp-mono-global-shutter-mipi-camera-with-130degree-850nm-only-m12-mount-for-raspberry-pi/' }], confidence: 'manufacturer', specStatus: 'partial',
+    cam: cam({ iface: 'csi-pi', sensor: 'OmniVision OV9281', resolution: '1280×800', fps: '≥60 fps (vendor figures differ)', fovDeg: null, shutter: 'global', color: 'mono', autofocus: false, lowLight: 'Mono sensors collect more light per pixel; IR variants exist', vslam: 5, vslamNote: 'Global shutter + high rate: best Visual SLAM candidate in the shortlist.' }),
+    ratings: { integration: 3, docs: 3, expandability: 4 }, ratingBasis: 'Driver/revision caveats; excellent for vision research.',
+    raptorStatus: 'requires-validation', raptorNote: 'Better for odometry than for target identification; consider as a second camera.', tags: ['csi', 'mono', 'global-shutter', 'vslam'], purchasePriority: 'research',
+  }),
+  P({
+    id: 'rpi-global-shutter', slots: ['camera'], name: 'Global Shutter Camera (body)', brand: 'Raspberry Pi', price: 50, priceStatus: 'preliminary', seller: 'Raspberry Pi approved resellers',
+    priceNote: 'Camera body only, about $50 per team notes. A C/CS lens is required and is not priced here.',
+    url: 'https://www.raspberrypi.com/products/raspberry-pi-global-shutter-camera/', needs: [{ label: 'C/CS-mount lens for Global Shutter Camera (price TBD)', price: null, perUnit: 1 }],
+    summary: '1.6 MP IMX296 global-shutter colour camera with C/CS mount — excellent motion imaging, higher system cost.',
+    pros: ['Global shutter in colour', 'Interchangeable C/CS lenses', 'Native libcamera support'], cons: ['Lens extra (unpriced)', 'Larger and heavier than Camera Module 3', 'No autofocus'],
+    specs: [['Sensor', 'Sony IMX296, 1.6 MP (recalled — verify)'], ['Shutter', 'Global'], ['Mount', 'C/CS']], includes: ['Camera body'], excludes: ['Lens', 'Cable adapter'], provides: ['camera'],
+    sources: [{ label: 'Raspberry Pi product page (blocked to automated fetch)', kind: 'manufacturer', url: 'https://www.raspberrypi.com/products/raspberry-pi-global-shutter-camera/' }], confidence: 'manufacturer', specStatus: 'unchecked',
+    cam: cam({ iface: 'csi-pi', sensor: 'Sony IMX296', resolution: '1456×1088', fps: '≈60 fps', fovDeg: null, shutter: 'global', color: 'rgb', autofocus: false, lowLight: 'Depends on lens', vslam: 5, vslamNote: 'Global shutter colour: good for VSLAM and detection; lens choice sets FOV.' }),
+    ratings: { integration: 4, docs: 5, expandability: 4 }, ratingBasis: 'Official Pi camera with extensive docs; complete cost is higher.',
+    raptorStatus: 'requires-validation', raptorNote: 'Strong for moving platforms; complete-system cost and lens FOV must be decided.', tags: ['csi', 'global-shutter', 'rgb'], purchasePriority: 'research',
+  }),
+  P({
+    id: 'logitech-c270', slots: ['camera'], name: 'C270 HD Webcam', brand: 'Logitech', price: 29.99, seller: 'Logitech / retailers', priceNote: 'Preliminary price from team notes.',
+    url: 'https://www.logitech.com/en-us/shop/p/c270-hd-webcam.960-000694',
+    summary: 'USB UVC webcam, 720p30 — works on any host with USB, including boards that lack a usable CSI port.',
+    pros: ['Plug-and-play UVC on Linux hosts (UNO Q, Orange Pi, Pi)', 'No driver or cable-type concerns', 'Cheap and replaceable'], cons: ['720p30, fixed focus, narrow FOV', 'USB bandwidth/latency overhead; MJPEG compression', 'Bulky; no wide-angle option'],
+    specs: [['Resolution', '1280×720 @ 30 fps'], ['Interface', 'USB 2.0 UVC'], ['Focus', 'Fixed']], includes: ['Webcam with cable'], excludes: [], provides: ['camera'],
+    sources: [{ label: 'Logitech product page (fetched 2026-10-23)', kind: 'manufacturer', url: 'https://www.logitech.com/en-us/shop/p/c270-hd-webcam.960-000694' }], confidence: 'manufacturer', specStatus: 'partial',
+    cam: cam({ iface: 'usb-uvc', sensor: 'Logitech C270', resolution: '1280×720', fps: '30 fps', fovDeg: null, shutter: 'rolling', color: 'rgb', autofocus: false, lowLight: 'Modest', vslam: 2, vslamNote: 'Fixed focus webcam with auto-exposure: poor VSLAM source.' }),
+    ratings: { integration: 5, docs: 4, expandability: 2 }, ratingBasis: 'Universal USB compatibility but limited optics.',
+    raptorStatus: 'compatible-in-principle', raptorNote: 'The compatible choice for UNO Q; check FOV against the arena.', tags: ['usb', 'uvc', 'rgb'], purchasePriority: 'before-integration',
+  }),
+  P({
+    id: 'rpi-cam2', slots: ['camera'], name: 'Camera Module 2', brand: 'Raspberry Pi', price: 25, priceNote: 'Preliminary $25. Adafruit listed $29.95 on 2026-10-23.',
+    observed: { price: 29.95, seller: 'Adafruit (authorised distributor)', date: CHECK_DATE, url: 'https://www.adafruit.com/product/3099' },
+    url: 'https://www.raspberrypi.com/products/camera-module-v2/', image: `${AD}/3099-02.jpg`, seller: 'Raspberry Pi approved resellers',
+    summary: '8 MP Sony IMX219 fixed-focus camera — cheap and widely supported, older generation.',
+    pros: ['Widest compatibility and example code', 'Low cost', 'Compact'], cons: ['Fixed focus', 'Rolling shutter', 'Narrow FOV; weaker low-light than Module 3'],
+    specs: [['Sensor', 'Sony IMX219, 8 MP'], ['Focus', 'Fixed'], ['Shutter', 'Rolling']], includes: ['Camera board', 'Flat cable'], excludes: [], provides: ['camera'],
+    sources: [{ label: 'Adafruit listing (fetched 2026-10-23)', kind: 'distributor', url: 'https://www.adafruit.com/product/3099' }], confidence: 'distributor', specStatus: 'partial',
+    cam: cam({ iface: 'csi-pi', sensor: 'Sony IMX219', resolution: '3280×2464 (8 MP); 1080p30', fps: '30 fps @1080p', fovDeg: 62, shutter: 'rolling', color: 'rgb', autofocus: false, lowLight: 'Moderate', vslam: 2, vslamNote: 'Fixed focus works for calibration but rolling shutter limits VSLAM.' }),
+    ratings: { integration: 5, docs: 5, expandability: 3 }, ratingBasis: 'Mature, but superseded by Camera Module 3.',
+    raptorStatus: 'compatible-in-principle', raptorNote: 'Budget option; field of view may be too narrow for tracking.', tags: ['csi', 'rgb', 'budget'], purchasePriority: 'before-integration',
+  }),
+]
